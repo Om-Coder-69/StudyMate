@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useActionState, useFormStatus } from 'react'; // Changed import
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom'; // Corrected import
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +26,7 @@ function SubmitButton({ mode }: { mode: 'login' | 'signup' }) {
 }
 
 export default function AuthForm({ mode, action }: AuthFormProps) {
-  const [state, formAction] = useActionState(action, { message: '' }); // Renamed hook
+  const [state, formAction] = useActionState(action, { message: '' });
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-150px)]">
