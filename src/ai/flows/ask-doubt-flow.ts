@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Handles student doubts about a lecture using an AI chat model.
@@ -12,7 +13,7 @@ import {z} from 'genkit';
 import type { Message } from 'genkit';
 
 
-export const AskDoubtInputSchema = z.object({
+const AskDoubtInputSchema = z.object({
   lectureTitle: z.string().describe('The title of the lecture.'),
   lectureSubject: z.string().describe('The subject of the lecture.'),
   userQuestion: z.string().describe('The question asked by the user regarding the lecture.'),
@@ -23,7 +24,7 @@ export const AskDoubtInputSchema = z.object({
 });
 export type AskDoubtInput = z.infer<typeof AskDoubtInputSchema>;
 
-export const AskDoubtOutputSchema = z.object({
+const AskDoubtOutputSchema = z.object({
   aiAnswer: z.string().describe('The AI-generated answer to the user\'s question.'),
 });
 export type AskDoubtOutput = z.infer<typeof AskDoubtOutputSchema>;
@@ -48,7 +49,7 @@ const askDoubtFlow = ai.defineFlow(
         role: 'user',
         content: `Context: You are an AI teaching assistant for StudyTube. The current lecture is titled "${input.lectureTitle}" (Subject: "${input.lectureSubject}"). Your role is to answer the student's questions about this specific lecture. Be clear and concise. If a question is off-topic, politely state that you can only discuss concepts related to the current lecture. If a question is too vague, ask for clarification. Keep your answers focused and helpful for learning.`
     });
-    chatMessages.push({ role: 'model', content: 'Understood. I am ready to help with questions about the lecture on "${input.lectureTitle}". How can I assist you?' });
+    chatMessages.push({ role: 'model', content: `Understood. I am ready to help with questions about the lecture on "${input.lectureTitle}". How can I assist you?` });
 
 
     if (input.chatHistory) {
@@ -83,3 +84,4 @@ const askDoubtFlow = ai.defineFlow(
     }
   }
 );
+
