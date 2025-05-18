@@ -48,8 +48,6 @@ export function useLectures() {
       return false;
     }
     
-    // Basic title fetching - in a real app, use YouTube API if allowed
-    // For now, using the user-provided title or a placeholder.
     const lectureTitle = title || `Lecture: ${videoId}`;
 
     const newLecture: Lecture = {
@@ -74,10 +72,6 @@ export function useLectures() {
     setLectures(prev => prev.map(lecture => lecture.id === id ? { ...lecture, notes } : lecture));
     // toast({ title: "Notes Saved", description: "Your notes have been updated." });
   }, [setLectures]);
-
-  const updateLectureSummary = useCallback((id: string, summary: string) => {
-    setLectures(prev => prev.map(lecture => lecture.id === id ? { ...lecture, summary } : lecture));
-  }, [setLectures]);
   
   const deleteLecture = useCallback((id: string) => {
     const lectureToDelete = lectures.find(l => l.id === id);
@@ -98,7 +92,7 @@ export function useLectures() {
     addLecture,
     getLectureById,
     updateLectureNotes,
-    updateLectureSummary,
+    // updateLectureSummary, // Removed
     deleteLecture,
     getSubjects,
   };

@@ -4,7 +4,7 @@ export interface Lecture {
   title: string;
   subject: string;
   notes: string;
-  summary?: string;
+  // summary?: string; // Removed summary
   thumbnailUrl: string;
   transcript?: string; 
   videoUrl: string;

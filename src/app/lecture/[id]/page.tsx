@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import DistractionFreePlayer from '@/components/lecture/DistractionFreePlayer';
 import NoteEditor from '@/components/lecture/NoteEditor';
-import LectureSummary from '@/components/lecture/LectureSummary';
+import DoubtChatbox from '@/components/lecture/DoubtChatbox'; // Added
 import { useLectures } from '@/hooks/useLectures';
 import type { Lecture } from '@/types';
-import { summarizeLecture, type SummarizeLectureInput, type SummarizeLectureOutput } from '@/ai/flows/summarize-lecture';
+// Removed summarizeLecture imports
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,11 +18,10 @@ export default function LecturePage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const { getLectureById, updateLectureNotes, updateLectureSummary, isLoading: lecturesHookLoading } = useLectures();
+  const { getLectureById, updateLectureNotes, isLoading: lecturesHookLoading } = useLectures(); // Removed updateLectureSummary
 
   const [lecture, setLecture] = useState<Lecture | null | undefined>(undefined); // undefined: loading, null: not found
-  const [isSummaryLoading, setIsSummaryLoading] = useState(false);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
+  // Removed summary-related state
 
   const lectureId = typeof params.id === 'string' ? params.id : '';
 
@@ -48,38 +47,7 @@ export default function LecturePage() {
     }
   };
 
-  const handleGenerateSummary = async () => {
-    if (!lecture) return;
-
-    setIsSummaryLoading(true);
-    setSummaryError(null);
-    try {
-      // For this example, we'll assume a transcript isn't pre-fetched.
-      // The summarizeLecture flow might attempt to get it or use other methods.
-      const input: SummarizeLectureInput = {
-        youtubeVideoId: lecture.youtubeVideoId,
-        // transcript: lecture.transcript // if available
-      };
-      const result: SummarizeLectureOutput = await summarizeLecture(input);
-
-      if (result.success && result.summary) {
-        updateLectureSummary(lecture.id, result.summary);
-        setLecture(prev => prev ? { ...prev, summary: result.summary } : null);
-        toast({ title: "Summary Generated", description: "Lecture summary has been successfully generated." });
-      } else {
-        const errorMsg = result.summary || "Failed to generate summary. The video might not support it (e.g., no transcript available).";
-        setSummaryError(errorMsg);
-        toast({ title: "Summary Failed", description: errorMsg, variant: "destructive" });
-      }
-    } catch (error) {
-      console.error("Error generating summary:", error);
-      const errorMsg = error instanceof Error ? error.message : "An unexpected error occurred during summary generation.";
-      setSummaryError(errorMsg);
-      toast({ title: "Summary Error", description: errorMsg, variant: "destructive" });
-    } finally {
-      setIsSummaryLoading(false);
-    }
-  };
+  // Removed handleGenerateSummary function
 
   if (lecture === undefined || lecturesHookLoading) {
     return (
@@ -111,11 +79,6 @@ export default function LecturePage() {
     );
   }
 
-  // The AI flow determines if summary is possible. For UI, assume possible unless explicitly told otherwise.
-  // The `summarizeLecture` function returns success: false if it fails, including if transcript isn't available.
-  // We can use this as an indicator.
-  const isSummaryPossible = true; // Default to true, actual check happens in AI flow.
-
   return (
     <>
       <Header showBackButton />
@@ -136,13 +99,8 @@ export default function LecturePage() {
               initialNotes={lecture.notes}
               onSaveNotes={handleSaveNotes}
             />
-            <LectureSummary
-              summary={lecture.summary}
-              isLoading={isSummaryLoading}
-              onGenerateSummary={handleGenerateSummary}
-              isSummaryPossible={isSummaryPossible}
-              generationError={summaryError}
-            />
+            {/* Replaced LectureSummary with DoubtChatbox */}
+            <DoubtChatbox lectureTitle={lecture.title} lectureSubject={lecture.subject} />
           </div>
         </div>
       </main>
