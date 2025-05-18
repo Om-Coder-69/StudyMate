@@ -15,7 +15,8 @@ export default function HomePage() {
   const { 
     lectures, 
     isLoading: lecturesLoading, 
-    addLecture, 
+    addLecture,
+    addPlaylist, // Import addPlaylist
     deleteLecture,
     getSubjects 
   } = useLectures();
@@ -33,6 +34,13 @@ export default function HomePage() {
     return success;
   };
 
+  const handleAddPlaylist = async (playlistUrl: string, subject: string) => {
+    setFormIsLoading(true);
+    const success = await addPlaylist(playlistUrl, subject);
+    setFormIsLoading(false);
+    return success;
+  };
+
   const filteredLectures = useMemo(() => {
     return lectures
       .filter(lecture => selectedSubject === "All" || lecture.subject === selectedSubject)
@@ -43,7 +51,11 @@ export default function HomePage() {
     <>
       <Header />
       <main className="container mx-auto p-4 md:p-6 flex-grow">
-        <AddLectureForm onAddLecture={handleAddLecture} isLoading={formIsLoading} />
+        <AddLectureForm 
+          onAddLecture={handleAddLecture} 
+          onAddPlaylist={handleAddPlaylist} // Pass handleAddPlaylist
+          isLoading={formIsLoading} 
+        />
         
         <div className="my-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
           <SubjectPills

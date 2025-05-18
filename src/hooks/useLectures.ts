@@ -59,12 +59,33 @@ export function useLectures() {
       notes: "",
       thumbnailUrl: getYouTubeThumbnailUrl(videoId),
       videoUrl,
-      timestamps: [], // Initialize timestamps
+      timestamps: [],
     };
     setLectures(prev => [newLecture, ...prev]);
     toast({ title: "Lecture Added", description: `"${lectureTitle}" has been added.` });
     return true;
   }, [lectures, toast]);
+
+  const addPlaylist = useCallback(async (playlistUrl: string, subject: string): Promise<boolean> => {
+    // Basic validation for playlist URL
+    if (!playlistUrl.includes("youtube.com/playlist?list=")) {
+        toast({ title: "Invalid Playlist URL", description: "Please provide a valid YouTube playlist URL (it should contain 'youtube.com/playlist?list=').", variant: "destructive" });
+        return false;
+    }
+
+    // Placeholder: In a full implementation, you'd fetch playlist items here.
+    // For now, we'll just acknowledge the playlist.
+    toast({
+        title: "Playlist Processing (Coming Soon!)",
+        description: `Playlist for "${subject || 'Uncategorized'}" from URL: ${playlistUrl} has been noted. Importing individual videos from playlists is a feature currently under development. Please add videos individually for now.`,
+        variant: "default",
+        duration: 7000, 
+    });
+    console.log("Playlist submitted:", playlistUrl, "Subject:", subject);
+    // Return true to indicate the form can be reset
+    return true;
+  }, [toast]);
+
 
   const getLectureById = useCallback((id: string): Lecture | undefined => {
     return lectures.find(lecture => lecture.id === id);
@@ -92,7 +113,17 @@ export function useLectures() {
       prevLectures.map(lecture => {
         if (lecture.id === lectureId) {
           const newTimestamp: Timestamp = { id: crypto.randomUUID(), time, label };
-          return { ...lecture, timestamps: [...lecture.timestamps, newTimestamp] };
+          // Sort timestamps by time after adding
+          const updatedTimestamps = [...lecture.timestamps, newTimestamp].sort((a, b) => {
+            const timeToSeconds = (t: string) => {
+              const parts = t.split(':').map(Number);
+              if (parts.length === 2) return parts[0] * 60 + parts[1];
+              if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+              return 0;
+            };
+            return timeToSeconds(a.time) - timeToSeconds(b.time);
+          });
+          return { ...lecture, timestamps: updatedTimestamps };
         }
         return lecture;
       })
@@ -117,6 +148,7 @@ export function useLectures() {
     lectures,
     isLoading,
     addLecture,
+    addPlaylist, // Export addPlaylist
     getLectureById,
     updateLectureNotes,
     deleteLecture,
