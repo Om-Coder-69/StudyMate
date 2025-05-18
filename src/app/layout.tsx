@@ -1,9 +1,11 @@
+
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import AppShell from '@/components/layout/AppShell';
+import { AuthProvider } from '@/context/AuthContext'; // Added AuthProvider
 
 const geistSans = GeistSans;
 const geistMono = GeistMono;
@@ -21,10 +23,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
-        <AppShell>
-          {children}
-        </AppShell>
-        <Toaster />
+        <AuthProvider> {/* Wrapped with AuthProvider */}
+          <AppShell>
+            {children}
+          </AppShell>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
