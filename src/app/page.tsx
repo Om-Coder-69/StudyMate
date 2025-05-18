@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -73,7 +74,8 @@ export default function HomePage() {
         )}
       </main>
       <footer className="text-center p-4 text-sm text-muted-foreground border-t">
-        © {new Date().getFullYear()} StudyTube. Focus on learning.
+        <p>© {new Date().getFullYear()} StudyTube. Focus on learning.</p>
+        <p>Created by The Developer</p>
       </footer>
     </>
   );

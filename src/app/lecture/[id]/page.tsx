@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useParams, useRouter } from 'next/navigation';
@@ -146,7 +147,8 @@ export default function LecturePage() {
         </div>
       </main>
        <footer className="text-center p-4 text-sm text-muted-foreground border-t">
-        © {new Date().getFullYear()} StudyTube. Keep learning!
+        <p>© {new Date().getFullYear()} StudyTube. Keep learning!</p>
+        <p>Created by The Developer</p>
       </footer>
     </>
   );
