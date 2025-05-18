@@ -1,6 +1,7 @@
+
 "use client";
 
-import type { Lecture } from '@/types';
+import type { Lecture, Timestamp } from '@/types';
 import { extractYouTubeVideoId, getYouTubeThumbnailUrl } from '@/lib/utils';
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +27,7 @@ export function useLectures() {
   }, [toast]);
 
   useEffect(() => {
-    if (!isLoading) { // Only save when not initially loading
+    if (!isLoading) { 
       try {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(lectures));
       } catch (error) {
@@ -58,6 +59,7 @@ export function useLectures() {
       notes: "",
       thumbnailUrl: getYouTubeThumbnailUrl(videoId),
       videoUrl,
+      timestamps: [], // Initialize timestamps
     };
     setLectures(prev => [newLecture, ...prev]);
     toast({ title: "Lecture Added", description: `"${lectureTitle}" has been added.` });
@@ -70,7 +72,6 @@ export function useLectures() {
 
   const updateLectureNotes = useCallback((id: string, notes: string) => {
     setLectures(prev => prev.map(lecture => lecture.id === id ? { ...lecture, notes } : lecture));
-    // toast({ title: "Notes Saved", description: "Your notes have been updated." });
   }, [setLectures]);
   
   const deleteLecture = useCallback((id: string) => {
@@ -86,14 +87,41 @@ export function useLectures() {
     return ["All", ...Array.from(subjects).sort()];
   }, [lectures]);
 
+  const addTimestampToLecture = useCallback((lectureId: string, time: string, label: string) => {
+    setLectures(prevLectures =>
+      prevLectures.map(lecture => {
+        if (lecture.id === lectureId) {
+          const newTimestamp: Timestamp = { id: crypto.randomUUID(), time, label };
+          return { ...lecture, timestamps: [...lecture.timestamps, newTimestamp] };
+        }
+        return lecture;
+      })
+    );
+    toast({ title: "Timestamp Added", description: `Timestamp "${label}" added at ${time}.`});
+  }, [toast]);
+
+  const deleteTimestampFromLecture = useCallback((lectureId: string, timestampId: string) => {
+    setLectures(prevLectures =>
+      prevLectures.map(lecture => {
+        if (lecture.id === lectureId) {
+          return { ...lecture, timestamps: lecture.timestamps.filter(ts => ts.id !== timestampId) };
+        }
+        return lecture;
+      })
+    );
+    toast({ title: "Timestamp Deleted", description: "Timestamp removed."});
+  }, [toast]);
+
+
   return {
     lectures,
     isLoading,
     addLecture,
     getLectureById,
     updateLectureNotes,
-    // updateLectureSummary, // Removed
     deleteLecture,
     getSubjects,
+    addTimestampToLecture,
+    deleteTimestampFromLecture,
   };
 }

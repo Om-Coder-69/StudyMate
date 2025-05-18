@@ -75,7 +75,7 @@ export default function HomePage() {
       </main>
       <footer className="text-center p-4 text-sm text-muted-foreground border-t">
         <p>© {new Date().getFullYear()} StudyTube. Focus on learning.</p>
-        <p>Created by The Developer</p>
+        <p>Created by Om Mittal</p>
       </footer>
     </>
   );

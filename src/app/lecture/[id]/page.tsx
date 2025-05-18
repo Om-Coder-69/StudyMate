@@ -6,10 +6,9 @@ import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import DistractionFreePlayer from '@/components/lecture/DistractionFreePlayer';
 import NoteEditor from '@/components/lecture/NoteEditor';
-import DoubtChatbox from '@/components/lecture/DoubtChatbox'; // Added
+import LectureTimestamps from '@/components/lecture/LectureTimestamps'; // Added
 import { useLectures } from '@/hooks/useLectures';
 import type { Lecture } from '@/types';
-// Removed summarizeLecture imports
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,10 +17,15 @@ export default function LecturePage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const { getLectureById, updateLectureNotes, isLoading: lecturesHookLoading } = useLectures(); // Removed updateLectureSummary
+  const { 
+    getLectureById, 
+    updateLectureNotes, 
+    isLoading: lecturesHookLoading,
+    addTimestampToLecture,
+    deleteTimestampFromLecture 
+  } = useLectures();
 
-  const [lecture, setLecture] = useState<Lecture | null | undefined>(undefined); // undefined: loading, null: not found
-  // Removed summary-related state
+  const [lecture, setLecture] = useState<Lecture | null | undefined>(undefined);
 
   const lectureId = typeof params.id === 'string' ? params.id : '';
 
@@ -35,7 +39,6 @@ export default function LecturePage() {
           description: "The lecture you are looking for does not exist or has been deleted.",
           variant: "destructive",
         });
-        // Optionally redirect: router.push('/');
       }
     }
   }, [lectureId, getLectureById, lecturesHookLoading, toast, router]);
@@ -47,7 +50,22 @@ export default function LecturePage() {
     }
   };
 
-  // Removed handleGenerateSummary function
+  const handleAddTimestamp = (time: string, label: string) => {
+    if (lecture) {
+      addTimestampToLecture(lecture.id, time, label);
+      // Optimistically update local state or rely on useLectures to update
+      const updatedLecture = getLectureById(lecture.id);
+      if (updatedLecture) setLecture(updatedLecture);
+    }
+  };
+
+  const handleDeleteTimestamp = (timestampId: string) => {
+    if (lecture) {
+      deleteTimestampFromLecture(lecture.id, timestampId);
+      const updatedLecture = getLectureById(lecture.id);
+      if (updatedLecture) setLecture(updatedLecture);
+    }
+  };
 
   if (lecture === undefined || lecturesHookLoading) {
     return (
@@ -99,14 +117,17 @@ export default function LecturePage() {
               initialNotes={lecture.notes}
               onSaveNotes={handleSaveNotes}
             />
-            {/* Replaced LectureSummary with DoubtChatbox */}
-            <DoubtChatbox lectureTitle={lecture.title} lectureSubject={lecture.subject} />
+            <LectureTimestamps 
+              timestamps={lecture.timestamps || []}
+              onAddTimestamp={handleAddTimestamp}
+              onDeleteTimestamp={handleDeleteTimestamp}
+            />
           </div>
         </div>
       </main>
        <footer className="text-center p-4 text-sm text-muted-foreground border-t">
         <p>© {new Date().getFullYear()} StudyTube. Keep learning!</p>
-        <p>Created by The Developer</p>
+        <p>Created by Om Mittal</p>
       </footer>
     </>
   );
