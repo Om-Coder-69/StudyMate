@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,23 +14,35 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+// Tabs imports are present but Tabs component is not used in the current return JSX
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, Youtube } from "lucide-react";
+import { useState } from "react";
 
-const FormSchema = z.object({
+const SingleLectureFormSchema = z.object({
   videoUrl: z.string().url({ message: "Please enter a valid YouTube URL." }),
   title: z.string().min(1, { message: "Please enter a title for the lecture." }),
   subject: z.string().min(1, { message: "Please enter a subject." }),
 });
 
+const PlaylistFormSchema = z.object({
+  playlistUrl: z.string().url({ message: "Please enter a valid YouTube playlist URL." }),
+ subject: z.string().min(1, { message: "Please enter a subject." }),
+});
+
 interface AddLectureFormProps {
   onAddLecture: (videoUrl: string, title: string, subject: string) => Promise<boolean>;
+  onAddPlaylist: (playlistUrl: string, subject: string) => Promise<boolean>; // New prop for adding playlist
   isLoading?: boolean;
 }
 
-export default function AddLectureForm({ onAddLecture, isLoading = false }: AddLectureFormProps) {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+export default function AddLectureForm({ onAddLecture, onAddPlaylist, isLoading = false }: AddLectureFormProps) {
+  // activeTab state is present but not currently used to switch forms in the UI
+  const [activeTab, setActiveTab] = useState("single"); 
+
+  const singleLectureForm = useForm<z.infer<typeof SingleLectureFormSchema>>({
+    resolver: zodResolver(SingleLectureFormSchema),
     defaultValues: {
       videoUrl: "",
       title: "",
@@ -37,10 +50,26 @@ export default function AddLectureForm({ onAddLecture, isLoading = false }: AddL
     },
   });
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  const playlistForm = useForm<z.infer<typeof PlaylistFormSchema>>({
+    resolver: zodResolver(PlaylistFormSchema),
+    defaultValues: {
+      playlistUrl: "",
+      subject: "",
+    },
+  });
+
+  async function onSubmitSingle(data: z.infer<typeof SingleLectureFormSchema>) {
     const success = await onAddLecture(data.videoUrl, data.title, data.subject);
     if (success) {
-      form.reset();
+      singleLectureForm.reset();
+    }
+  }
+
+  // onSubmitPlaylist is defined but not currently wired up in the form
+  async function onSubmitPlaylist(data: z.infer<typeof PlaylistFormSchema>) {
+    const success = await onAddPlaylist(data.playlistUrl, data.subject);
+    if (success) {
+      playlistForm.reset();
     }
   }
 
@@ -53,10 +82,19 @@ export default function AddLectureForm({ onAddLecture, isLoading = false }: AddL
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* 
+          The component currently renders a single form. 
+          If Tabs functionality for single/playlist is desired, the JSX structure would need
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList>...</TabsList>
+            <TabsContent value="single">...</TabsContent>
+            <TabsContent value="playlist">...</TabsContent>
+          </Tabs>
+        */}
+        <Form {...singleLectureForm}>
+          <form onSubmit={singleLectureForm.handleSubmit(onSubmitSingle)} className="space-y-6">
             <FormField
-              control={form.control}
+              control={singleLectureForm.control}
               name="videoUrl"
               render={({ field }) => (
                 <FormItem>
@@ -69,7 +107,7 @@ export default function AddLectureForm({ onAddLecture, isLoading = false }: AddL
               )}
             />
             <FormField
-              control={form.control}
+              control={singleLectureForm.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
@@ -82,7 +120,7 @@ export default function AddLectureForm({ onAddLecture, isLoading = false }: AddL
               )}
             />
             <FormField
-              control={form.control}
+              control={singleLectureForm.control}
               name="subject"
               render={({ field }) => (
                 <FormItem>
